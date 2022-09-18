@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+        integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+        <style>
+            * {
+            padding: 0;
+            margin: 0;
+        }
+        
+        /*body{
+            background-image: url('Images/background.jpg');
+            background-repeat: no-repeat;
+            background-size:contain;
+        }*/
+        
+        /*header css-------------------------------------------------------------------------*/
+        .header {
+            background-image: linear-gradient(#C33764, #1D2671);
+            text-align: center;
+            height: 64px;
+        
+        }
+        
+        #heading {
+            font-size: 33px;
+            font-family: Arial, Helvetica, sans-serif;
+            color: black;
+            font-weight: bold;
+            padding-top: 9px;
+        }
+        
+        
+        /*main container css------------------------------------------------------------------*/
+        .body_section {
+            background-color: aliceblue;
+        }
+        .weather_button{
+            background-color: aqua;
+            text-align: center;
+            margin-left: 75px;
+            
+        }
+        /*------popup------------------------------------------------------------------------*/
+        .popup_div{
+            width:100%;
+            height:100vh;
+            top:0;
+            left:0;
+            position:absolute;
+            background-color: rgba(0, 0, 0,0.5);
+            display: flex;
+            justify-content: center;
+            text-align: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s,opacity 0.5s;
+        }
+        /*This is the active background*/
+        .bg-active{
+            visibility:visible;
+            opacity: 1;
+        }
+        .div_inside{
+            background-image: url('https://ichef.bbci.co.uk/images/ic/640x360/p09qndr2.jpg');
+            background-repeat: no-repeat;
+            background-size: cover;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: white;
+            width: 40%;
+            height: 50%;
+            margin:auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .div_inside_btn{
+           
+            background: crimson;
+            color: black;
+            border: none;
+            border-radius:2px;
+            cursor: pointer;
+            font-family: Arial, Helvetica, sans-serif;
+            width: 27%;
+            height: 36px;
+            border-radius: 18px;
+            margin-block: auto;
+            margin-bottom: 44px;
+            margin-left: 172px;
+        }
+        
+        .lat{
+            background-color: #C33764;
+        }
+        .div_inside span{
+            display: inline-flex;
+        }
+        </style>    
+</head>
+
+
+<body>
+   <div class="header"><h1 id="heading"style="text-align: center;">WELCOME TO WEATHER FORECAST</h1></div>
+   <section class="body_section">
+    <div class="container main ">
+   
+    </div>
+   </section>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"
+        integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+"
+        crossorigin="anonymous"></script>
+    <script>
+        
+//Retriving the name of the countries from the restcountries api
+const url = "https://restcountries.com/v2/all";
+let fun = (url) => {
+    fetch(url, {
+        method: "GET",
+    })
+        .then((data) => data.json())
+        .then((response) => {
+            searchByNameAndCapital(response);
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+};
+fun(url);
+let arr = [];
+
+//The searchByNameAndCapital method store the name of the countries,capital and images in the array in the form of 
+//objects.
+function searchByNameAndCapital(data) {
+
+    let weather_arr = [];
+    console.log(data);
+    for (let i = 0; i < data.length; i++) {
+        let file = {
+            img: null,
+            name: null,
+            capital: null
+        };
+        file.img = data[i].flag;
+        file.name = data[i].name;
+        file.capital = data[i].capital;
+        arr.push(file);
+    }
+    let n = arr.length;
+    // console.log(n);
+
+    //The container div
+    let container_div = document.getElementsByClassName("container");
+    let i = 0;
+
+
+    //Making 84 rows because there are 250 ele hece 250/4=65
+    for (let row = 1; row <= 65 && i < n; row++) {
+        let div_row = document.createElement('div');
+        div_row.className = "row";
+
+        //For each row there should be 4 columns ,so this loop is for 4 col
+        for (let col = 1; col <= 4 && i < n; col++) {
+            let div_col = document.createElement('div');
+            div_col.className = "col-sm-3";
+
+            //Span ele is created to append the flag,name of flag and button
+            let span_ele = document.createElement('span');
+
+            //Dynamically creating the Image
+            let image = document.createElement('img');
+            image.className = "flag_image";
+            image.setAttribute("src", arr[i].img);
+            image.style.width = "250px";
+            image.style.height = "250px";
+            image.style.margin = "10px";
+            image.style.border = "solid";
+            image.style.background = "white";
+
+            //appending the image into span
+            span_ele.appendChild(image);
+
+            //Dynamically creating the paragraph for the name of the country.
+            let country_name = document.createElement('p');
+            country_name.className = "country_name";
+            country_name.id = "country_name";
+            country_name.innerText = arr[i].name;
+            //country_name.style.padding = "5px";
+            country_name.style.color = "black";
+            country_name.style.textAlign = "center";
+            country_name.style.marginLeft = "10px";
+
+            //appending the name into span
+            span_ele.appendChild(country_name);
+
+            div_col.appendChild(span_ele);
+
+            //Dynamically Creating a button
+            let weather_button = document.createElement('button');
+            weather_button.className = "weather_button";
+            weather_button.innerText = "Weather Report";
+            weather_button.addEventListener('click', function () {
+
+                //First div    
+                let mydiv = document.createElement('div');
+                mydiv.className = "popup_div"
+
+                //Append to the section
+                document.getElementsByClassName('body_section')[0].appendChild(mydiv);
+
+                //div inside
+                let div_inside = document.createElement('div');
+                div_inside.className = "div_inside";
+
+                //append the sec div to the first
+                mydiv.appendChild(div_inside);
+
+                //para
+                let h1 = document.createElement('h1');
+                h1.innerHTML = country_name.innerText;
+                console.log(h1);
+                h1.style.textAlign = "center";
+
+
+                //append the para
+                div_inside.appendChild(h1);
+
+
+
+
+
+               //weatherarray
+               console.log(weather_arr);
+               for(let j=0;j<weather_arr.length;j++){
+                    if(weather_arr[j].country_name===country_name.innerText){
+                    let s1=document.createElement('span');
+                    
+                    let s2=document.createElement('span');
+                    let s3=document.createElement('span');
+                    let s4=document.createElement('span');
+
+                    let pp1=document.createElement('p');
+                    let p1=document.createElement('p');
+                    s1.appendChild(pp1);
+                    s1.appendChild(p1);
+
+                    let pp2=document.createElement('p');
+                    let p2=document.createElement('p');
+                    s2.appendChild(pp2);
+                    s2.appendChild(p2);
+                    
+                    let pp3=document.createElement('p');
+                    let p3=document.createElement('p');
+                    s3.appendChild(pp3);
+                    s3.appendChild(p3);
+
+                    
+                    let pp4=document.createElement('p');
+                    let p4=document.createElement('p');
+                    s4.appendChild(pp4);
+                    s4.appendChild(p4);
+                    
+                    pp1.innerHTML="LATITUDE= ";
+                    p1.innerHTML=weather_arr[j].lat;
+
+                    pp2.innerHTML="LONGITUDE= ";
+                    p2.innerHTML=weather_arr[j].lon;
+
+                    pp3.innerHTML="TEMPERATURE= ";
+                    p3.innerHTML=weather_arr[j].temp;
+
+                    pp4.innerHTML="HUMIDITY= ";
+                    p4.innerHTML=weather_arr[j].humd;
+                    
+                    
+                    div_inside.appendChild(s1);
+                    div_inside.appendChild(s2);
+
+                    
+                    div_inside.appendChild(s3);
+                    div_inside.appendChild(s4);
+
+                    
+                    }
+               }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                //button
+                let div_inside_btn = document.createElement('button');
+                div_inside_btn.className = "div_inside_btn";
+                div_inside_btn.innerText = "Close";
+
+                //append into the sec div
+                div_inside.appendChild(div_inside_btn);
+
+               //removing the background
+                  div_inside_btn.addEventListener('click', function () {
+                    mydiv.classList.remove('bg-active');
+                });
+
+                //adding the background
+                mydiv.classList.add('bg-active');
+            });
+
+
+            let country_capital = arr[i].capital;
+            //console.log(country_capital);
+            const url2 = `https://api.openweathermap.org/data/2.5/weather?q=${country_capital}&appid=74ca63f5c9014daf74ae560d33d40924`;
+            let fun = (url2,i) => {
+                fetch(url2, {
+                    method: "GET",
+                })
+                    .then((data) => data.json())
+                    .then((response) => {
+                        findweather(response,i);
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+            };
+            fun(url2,i);
+            function findweather(data,i) {
+                //console.log(data.coord.lat);
+                //let div_inside=document.getElementsByClassName('div_inside')
+                //console.log(div_inside.className);
+                //console.log(arr[i]);
+                let file={
+                 country_name:null,
+                 lat:null,
+                 lon:null,
+                 temp:null,
+                 humd:null
+                }
+                file.country_name=arr[i].name;
+              file.lat=(data.coord.lat);
+              file.lon=data.coord.lon;
+              file.temp=data.main.temp;
+              file.humd=data.main.humidity;
+               weather_arr.push(file);
+}
+
+
+            span_ele.appendChild(weather_button);
+            //append the col into the row
+            div_row.appendChild(div_col);
+            i++;
+
+
+
+
+        
+
+        }
+
+
+
+        //appending the row into thw main container
+        container_div[0].appendChild(div_row);
+        //console.log(weather_arr)
+    }
+        
+}
+
+    </script>
+</body>
+
+</html>
